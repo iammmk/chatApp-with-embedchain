@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      ,
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
+    <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="logo">
+        <img
+          src="{{ url_for('static', filename='images/openai-logo.svg') }}"
+          alt="Logo"
+        />
+      </div>
+      <div class="app-name">chatApp</div>
+      <div class="app-disclaimer">
+        (made with
+        <a href="https://github.com/embedchain/embedchain" target="_blank"
+          >Embedchain.ai</a
+        >)
+      </div>
+      <h3>Sign in to chatApp</h3>
+      <form method="POST" action="">
+        {{form.hidden_tag()}} {{form.username(class="form-input")}}
+        {{form.password(class="form-input")}}
+        {{form.submit(class="submit-btn")}}
+      </form>
+      {% if info %}
+      <div class="info">{{info}}</div>
+      {% endif %}
+      <div class="register-section">
+        <span> Don't have an account?</span>&nbsp;<a
+          class="register-link"
+          href="{{ url_for('register') }}"
+          >Sign Up</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
