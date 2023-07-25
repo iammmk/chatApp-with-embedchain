@@ -6,14 +6,20 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+from flask_migrate import Migrate
+from dotenv import load_dotenv
 from embedchain import App
 
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///chatApp.db"
-app.config['SECRET_KEY'] = 'thisismychatappwithembedchain'
+# app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///chatApp.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+
+migrate = Migrate(app, db)
 
 embedchain_bot = App()
 
@@ -91,7 +97,8 @@ def register():
         if existing_user:
             return render_template('register.html', form=form, info="Username already taken")
 
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        hashed_password = bcrypt.generate_password_hash(
+            form.password.data).decode('utf-8')
         print(hashed_password)
         new_user = User(username=form.username.data, password=hashed_password)
         db.session.add(new_user)
@@ -143,4 +150,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=4000)
