@@ -32,26 +32,27 @@
     </div>
     <div class="container">
       <form action="/chat" method="POST">
-        <div class="input-container">
+        <div class="train-container">
           <input type="hidden" name="form_type" value="train" />
-          <select class="dropdown" name="dropdown">
-            <option value="" {% if not prev_datatype %}selected{% endif %} disabled>Select</option>
+          <select class="dropdown" name="dropdown" id="datatype-dropdown">
+            <option value="" {% if not prev_datatype %}selected{% endif %} disabled>Select datatype</option>
             <option value="pdf_file" {% if prev_datatype == 'pdf_file' %}selected{% endif %}>PDF file</option>
             <option value="youtube_video" {% if prev_datatype == 'youtube_video' %}selected{% endif %}>YouTube video</option>
             <option value="webpage" {% if prev_datatype == 'webpage' %}selected{% endif %}>Web page</option>
             <option value="docx" {% if prev_datatype == 'docx' %}selected{% endif %}>Doc file</option>
+            <option value="text" {% if prev_datatype == 'text' %}selected{% endif %}>Text</option>
+            <option value="docs_site" {% if prev_datatype == 'docs_site' %}selected{% endif %}>Code docs site</option>
+            <option value="qna_pair" {% if prev_datatype == 'qna_pair' %}selected{% endif %}>QnA pair</option>
           </select>
-          <textarea
-            class="train-textbox"
-            name="trainbox"
-            placeholder="Enter a link"
-          >{% if prev_dataset %}{{prev_dataset}}{% endif %}</textarea>
-          <input class="submit-btn" type="submit" value="Train" />
+          <div id="train-text-container">
+          </div>
+          <input class="submit-btn" type="submit" value="Train dataset" />
         </div>
         {% if training_text %}
         <p class="response-text">{{ training_text }}</p>
         {% endif %}
       </form>
+
       <form class="chat-form" action="/chat" method="POST">
         <div class="input-container">
           <input type="hidden" name="form_type" value="query" />
@@ -69,5 +70,23 @@
         {% endif %}
       </form>
     </div>
+    <script>
+    window.onload = function() {
+    document.getElementById('datatype-dropdown').addEventListener('change', function() {
+        if(this.value === 'qna_pair') {
+            document.getElementById('train-text-container').innerHTML = `
+                <textarea class="train-textbox-qna" name="questionbox" placeholder="Enter your question..."></textarea>
+                <textarea class="train-textbox-qna" name="answerbox" placeholder="Enter your answer..."></textarea>
+            `;
+        }
+         else {
+            document.getElementById('train-text-container').innerHTML = `
+                <textarea class="train-textbox-nonqna" id="trainbox" name="trainbox" placeholder="Add your dataset..."></textarea>
+            `;
+        }
+    });
+};
+</script>
+
   </body>
 </html>

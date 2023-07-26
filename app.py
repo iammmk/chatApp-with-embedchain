@@ -10,6 +10,7 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 from embedchain import App
 
+# load values from .env file then get it by os.getenv
 load_dotenv()
 
 app = Flask(__name__)
@@ -113,32 +114,68 @@ def register():
 def chat():
     if request.method == "POST":
         form_type = request.form['form_type']
+        print(form_type)
 
         # training of dataset
         if form_type == 'train':
             data_format = request.form['dropdown']
-            dataset = request.form['trainbox']
+            if data_format=="qna_pair":
+                question= request.form["questionbox"]
+                answer= request.form['answerbox']
 
-            try:
-                print("Training started")
-                embedchain_bot.add(data_format, dataset)
-                print("Training completed !")
-                return render_template('chat.html', training_text="Training completed", prev_datatype=data_format, prev_dataset=dataset)
+                try:
+                    print("Training started")
+                    embedchain_bot.add_local(data_format, (question,answer))
+                    print("Training completed !")
+                    total_chunks= embedchain_bot.count()
+                    training_text= f"Training completed. Current no. of chunks {total_chunks}"
+                    return render_template('chat.html', training_text=training_text)
+                
+                except Exception as e:
+                    return render_template('chat.html', text=str(e))
+            
+            elif data_format=="text":
+                dataset= request.form["trainbox"]
+                
+                try:
+                    print("Training started")
+                    embedchain_bot.add_local(data_format, dataset )
+                    print("Training completed !")
+                    total_chunks = embedchain_bot.count()
+                    training_text = f"Training completed. Current no. of chunks {total_chunks}"
+                    return render_template('chat.html', training_text=training_text)
+                
+                except Exception as e:
+                    return render_template('chat.html', text=str(e))
+            
+            else:
+                dataset = request.form["trainbox"]
+                print(dataset)
+                    
+                try:
+                    print("Training started")
+                    embedchain_bot.add(data_format, dataset)
+                    print("Training completed !")
+                    total_chunks = embedchain_bot.count()
+                    training_text = f"Training completed. Current no. of chunks {total_chunks}"
+                    return render_template('chat.html', training_text=training_text)
+                
+                except Exception as e:
+                    return render_template('chat.html', text=str(e))
 
-            except Exception as e:
-                return render_template('chat.html', text=str(e), prev_datatype=data_format, prev_dataset=dataset)
-
-        # qna
+        # question/answering
         if form_type == 'query':
             user_query = request.form['querybox']
             print(user_query)
             try:
-                response = embedchain_bot.query(user_query)
+                # .chat for chat interface; it remembers previous conversation.
+                response = embedchain_bot.chat(user_query)
                 print("Got response !")
                 return render_template('chat.html', text=response, prev_query=user_query)
 
             except Exception as e:
                 return render_template('chat.html', text=str(e), prev_query=user_query)
+            
     return render_template('chat.html')
 
 
